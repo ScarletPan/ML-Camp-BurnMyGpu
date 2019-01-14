@@ -7,8 +7,8 @@ random.seed(2019)
 
 if __name__ == "__main__":
     if not os.path.exists("textsum/data/"):
-        os.mkdir("textsum/data/chinese_new/")
-    if not os.path.exists("textsum/data/"):
+        os.mkdir("textsum/data/")
+    if not os.path.exists("textsum/data/chinese_new"):
         os.mkdir("textsum/data/chinese_new/")
 
     df = pd.read_csv("data/tokenized/chinese_new/chinese_news.csv")
