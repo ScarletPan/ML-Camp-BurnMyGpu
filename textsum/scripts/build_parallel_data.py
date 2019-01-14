@@ -38,18 +38,18 @@ if __name__ == "__main__":
             f.write(content.replace("\n", " </d> ") + "\n")
     with open("textsum/data/chinese_new/train.tgt.txt", "w") as f:
         for headline in tr_df.headline.tolist():
-            f.write(headline + "\n")
+            f.write(headline.replace("\n", " </d> ") + "\n")
 
     with open("textsum/data/chinese_new/valid.src.txt", "w") as f:
         for content in val_df.content.tolist():
             f.write(content.replace("\n", " </d> ") + "\n")
     with open("textsum/data/chinese_new/valid.tgt.txt", "w") as f:
         for headline in val_df.headline.tolist():
-            f.write(headline + "\n")
+            f.write(headline.replace("\n", " </d> ") + "\n")
 
     with open("textsum/data/chinese_new/test.src.txt", "w") as f:
         for content in te_df.content.tolist():
             f.write(content.replace("\n", " </d> ") + "\n")
     with open("textsum/data/chinese_new/test.tgt.txt", "w") as f:
         for headline in te_df.headline.tolist():
-            f.write(headline + "\n")
+            f.write(headline.replace("\n", " </d> ") + "\n")
