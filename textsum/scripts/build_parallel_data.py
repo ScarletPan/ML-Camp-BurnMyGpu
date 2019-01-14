@@ -6,9 +6,9 @@ from sklearn.model_selection import StratifiedKFold
 random.seed(2019)
 
 if __name__ == "__main__":
-    if not os.exist("textsum/data/"):
+    if not os.path.exists("textsum/data/"):
         os.mkdir("textsum/data/chinese_new/")
-    if not os.exist("textsum/data/"):
+    if not os.path.exists("textsum/data/"):
         os.mkdir("textsum/data/chinese_new/")
 
     df = pd.read_csv("data/tokenized/chinese_new/chinese_news.csv")
@@ -24,8 +24,11 @@ if __name__ == "__main__":
         val_df = tmp_df.iloc[val_idx]
         te_df = tmp_df.iloc[te_idx]
     print("Train size: ", tr_df.shape)
+    print(tr_df.iloc[0]["headline"])
     print("Valid size: ", val_df.shape)
+    print(val_df.iloc[0]["headline"])
     print("Test size: ", te_df.shape)
+    print(te_df.iloc[0]["headline"])
     tr_df.to_csv("textsum/data/chinese_new/train.csv", index=False)
     val_df.to_csv("textsum/data/chinese_new/valid.csv", index=False)
     te_df.to_csv("textsum/data/chinese_new/test.csv", index=False)
