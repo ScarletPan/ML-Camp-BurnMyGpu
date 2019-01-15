@@ -21,6 +21,7 @@ Google ML冬令营-燃烧我的GPU-项目
 - [x] (Model) Seq2seq+Attn
 - [x] (Model) CopyNet
 - [ ] (Model) +Coverage
+- [ ] (Transfer) +Sougou
 - [ ] (Performance) Real-time inference
 
 * Text Style Transfering

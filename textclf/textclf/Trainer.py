@@ -1,5 +1,6 @@
 import os
 import torch
+from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
 from textclf.models.constructor import construct_model
 from textclf.toolbox.stats import Statistics
 
@@ -50,14 +51,23 @@ class Trainer(object):
         self.model.eval()
         self.model.flatten_parameters()
         stats = Statistics(self.logger)
+        y_true = []
+        y_pred = []
         for j, batch in enumerate(self.valid_iter):
+            tgts = batch.labels.data.cpu().numpy().tolist()
+            y_true.extend(tgts)
             result_dict = self.model.run_batch(batch)
+            y_pred.extend(result_dict["pred"])
             batch_stats = Statistics(num=result_dict["num_words"],
                                      loss=result_dict["loss"].item(),
                                      n_words=result_dict["num_words"],
                                      n_correct=result_dict["num_correct"],
                                      logger=self.logger)
             stats.update(batch_stats)
+        self.logger.info("Accuracy: {:.2f}".format(accuracy_score(y_true, y_pred)))
+        self.logger.info("F1: {:.2f}".format(f1_score(y_true, y_pred, average="macro")))
+        self.logger.info("Precision:{:.2f}".format(precision_score(y_true, y_pred, average="macro")))
+        self.logger.info("Recall:{:.2f}".format(recall_score(y_true, y_pred, average="macro")))
         # Set model back to training mode.
         self.model.train()
         return stats

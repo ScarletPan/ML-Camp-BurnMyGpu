@@ -25,6 +25,7 @@ class PoolLSTM(BaseDeepModel):
         self.use_cuda = opt.meta.use_cuda
         self.n_class = 3
         self_linear_hidden_size = opt.model.self_linear_hidden_size
+        linear_hidden_size = opt.model.linear_hidden_size
         self.self_fc = nn.Sequential(
             nn.Linear(rnn_hidden_size, self_linear_hidden_size),
             nn.BatchNorm1d(self_linear_hidden_size),
@@ -32,10 +33,10 @@ class PoolLSTM(BaseDeepModel):
             nn.Linear(self_linear_hidden_size, 1)
         )
         self.fc = nn.Sequential(
-            nn.Linear(4 * rnn_hidden_size, 512),
-            nn.BatchNorm1d(512),
+            nn.Linear(rnn_hidden_size * 4, linear_hidden_size),
+            nn.BatchNorm1d(linear_hidden_size),
             nn.ReLU(inplace=True),
-            nn.Linear(512, self.n_class)
+            nn.Linear(linear_hidden_size, self.n_class)
         )
         self.dropout = nn.Dropout(opt.model.dropout)
 
@@ -69,7 +70,6 @@ class PoolLSTM(BaseDeepModel):
         concat_out = torch.cat(
             [last_hidden_out, max_pool_out, avg_pool_out, self_attn_out],
             dim=1)
-        concat_out = self.dropout(concat_out)
         logits = self.fc(concat_out).squeeze(1)
         return logits
 
@@ -88,31 +88,3 @@ class PoolLSTM(BaseDeepModel):
 
     def flatten_parameters(self):
         self.encoder.flatten_parameters()
-
-    def run_batch(self, batch):
-        inps, inps_lens = batch.inps
-        bert_inps, bert_inps_lens = batch.bert_inps
-        labels = batch.labels
-        logits = self.forward(
-            inps=inps, inps_len=inps_lens,
-            bert_inps=bert_inps, bert_inps_len=bert_inps_lens)
-
-        loss = self.loss_fn(logits, labels)
-        _, pred = logits.max(1)
-        num_correct = pred.eq(labels).sum().item()
-        num_words = pred.size(0)
-        result_dict = {
-            "loss": loss,
-            "num_correct": num_correct,
-            "num_words": num_words,
-        }
-        return result_dict
-
-    def predict_batch(self, batch):
-        inps, inps_lens = batch.inps
-        bert_inps, bert_inps_lens = batch.bert_inps
-        logits = self.forward(
-            inps=inps, inps_len=inps_lens,
-            bert_inps=bert_inps, bert_inps_len=bert_inps_lens)
-        _, pred = logits.max(1)
-        return pred

@@ -35,25 +35,28 @@ class Batch(object):
 
     def build_batch(self, data):
         pad_idx = self.opt.pad_idx
+        data = list(sorted(data, key=lambda x: len(x[0]), reverse=True))
 
         contents_lens = [len(t[0]) for t in data]
-        inps = [padding_list(t[0], self.opt.max_content_length, pad_idx) for t in data]
+        max_content_len = max(contents_lens)
+        inps = [padding_list(t[0], max_content_len, pad_idx) for t in data]
         self.inps = (torch.LongTensor(inps),
-                         torch.LongTensor(contents_lens))
-        assert all_len_eq(inps, self.opt.max_content_length), print(data)
+                     torch.LongTensor(contents_lens))
+        assert all_len_eq(inps, max_content_len), print(data)
 
-        bert_contents_lens = [len(t[0]) for t in data]
+        bert_contents_lens = [len(t[1]) for t in data]
         max_bert_content_lens = max(contents_lens)
-        bert_inps = [padding_list(t[0], max_bert_content_lens, pad_idx) for t in data]
+        bert_inps = [padding_list(t[1], max_bert_content_lens, pad_idx) for t in data]
         self.bert_inps = (torch.LongTensor(bert_inps),
                           torch.LongTensor(bert_contents_lens))
         assert all_len_eq(bert_inps, max_bert_content_lens), print(data)
 
-        labels = [t[1] for t in data]
+        labels = [t[2] for t in data]
         self.labels = torch.LongTensor(labels)
 
     def cuda(self):
         self.inps = [t.cuda(async=True) for t in self.inps]
+        self.bert_inps = [t.cuda(async=True) for t in self.bert_inps]
         self.labels = self.labels.cuda(async=True)
 
 
@@ -89,7 +92,7 @@ class NewsDataset(torch.utils.data.Dataset):
                 contents.extend(records[0])
                 bert_contents.extend(records[1])
                 tags.extend(records[2])
-            self.data = [(contents[i], tags[i])
+            self.data = [(contents[i], bert_contents[i], tags[i])
                          for i in range(len(contents))]
 
             if data_cache_path:
@@ -105,8 +108,14 @@ class NewsDataset(torch.utils.data.Dataset):
             contents.append(content_idx)
             tokenized_text = self.bert_tokenizer.tokenize("".join(content_words))
             indexed_tokens = self.bert_tokenizer.convert_tokens_to_ids(tokenized_text)
-            bert_contents.append(indexed_tokens)
+            bert_contents.append([self.bert_tokenizer.vocab["[CLS]"]]
+                                 + indexed_tokens
+                                 + [self.bert_tokenizer.vocab["[SEP]"]])
             tags.append(tag2idx[tag])
+            # print("=" * 50)
+            # print(content_words)
+            # print(content_idx)
+            # print(tag)
 
         return contents, bert_contents, tags
 

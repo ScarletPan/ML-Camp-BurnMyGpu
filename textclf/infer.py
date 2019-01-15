@@ -6,7 +6,7 @@ import torch
 from tqdm import tqdm
 from textclf.io.NewsDataset import NewsDatasetIterator, tag2idx
 from sklearn.metrics import accuracy_score, f1_score, \
-    precision_score, recall_score, roc_auc_score
+    precision_score, recall_score
 
 
 def model_infer(model_path, inp_path):

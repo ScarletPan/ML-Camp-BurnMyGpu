@@ -1,12 +1,12 @@
 {
   "meta": {
-    "model": "poolLSTM",
+    "model": "rcnn",
     "data_dir": "data/chinese_new/",
-    "data_cache_dir": "cache/poolLSTM/data/",
+    "data_cache_dir": "cache/rcnn/data/",
     "vocab_path": "data/chinese_new/vocab.pt",
-    "save_model": "cache/poolLSTM/model",
-    "save_results": "cache/poolLSTM/results",
-    "save_log": "cache/poolLSTM/log/",
+    "save_model": "cache/rcnn/model",
+    "save_results": "cache/rcnn/results",
+    "save_log": "cache/rcnn/log/",
     "use_pre_word_emb": false,
     "batch_size": 64,
     "valid_batch_size": 16,
@@ -18,7 +18,8 @@
     "gpu": 2,
     "max_content_length": 300,
     "max_headline_length": 30,
-    "n_workers": 0
+    "n_workers": 0,
+    "n_class": 3
   },
   "optimizer": {
     "optim": "adam",
@@ -41,12 +42,13 @@
   "model": {
     "vocab_size": null,
     "word_embed_size": 128,
+    "kernel_dim": 512,
+    "kernel_size": 3,
     "rnn_hidden_size": 512,
-    "self_linear_hidden_size": 256,
     "linear_hidden_size": 256,
-    "dropout": 0.0,
     "n_layers": 1,
     "attn_score_method": "dot",
+    "dropout": 0.1,
     "use_word_attn": true
   }
 }

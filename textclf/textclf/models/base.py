@@ -15,3 +15,32 @@ class BaseDeepModel(nn.Module):
 
     def flatten_parameters(self):
         pass
+
+    def run_batch(self, batch):
+        inps, inps_lens = batch.inps
+        bert_inps, bert_inps_lens = batch.bert_inps
+        labels = batch.labels
+        logits = self.forward(
+            inps=inps, inps_len=inps_lens,
+            bert_inps=bert_inps, bert_inps_len=bert_inps_lens)
+
+        loss = self.loss_fn(logits, labels)
+        _, pred = logits.max(1)
+        num_correct = pred.eq(labels).sum().item()
+        num_words = pred.size(0)
+        result_dict = {
+            "loss": loss,
+            "num_correct": num_correct,
+            "num_words": num_words,
+            "pred": pred.data.cpu().numpy().tolist()
+        }
+        return result_dict
+
+    def predict_batch(self, batch):
+        inps, inps_lens = batch.inps
+        bert_inps, bert_inps_lens = batch.bert_inps
+        logits = self.forward(
+            inps=inps, inps_len=inps_lens,
+            bert_inps=bert_inps, bert_inps_len=bert_inps_lens)
+        _, pred = logits.max(1)
+        return pred
