@@ -1,0 +1,51 @@
+{
+  "meta": {
+    "model": "seq2seq",
+    "data_dir": "data/chinese_new/",
+    "data_cache_dir": "cache/seq2seq/data/",
+    "vocab_path": "data/chinese_new/vocab.pt",
+    "save_model": "cache/seq2seq/model",
+    "save_results": "cache/seq2seq/results",
+    "save_log": "cache/seq2seq/log/",
+    "use_pre_word_emb": false,
+    "use_copy": false,
+    "batch_size": 128,
+    "valid_batch_size": 16,
+    "epochs": null,
+    "print_every": 100,
+    "valid_every": 500,
+    "total_steps": 5000,
+    "use_cuda": true,
+    "gpu": 1,
+    "max_content_length": 300,
+    "max_headline_length": 30,
+    "n_workers": 0
+  },
+  "optimizer": {
+    "optim": "adagrad",
+    "normalization": "sents",
+    "accum_count": 1,
+    "adagrad_accumulator_init": 0.1,
+    "max_grad_norm": 2,
+    "truncated_decoder": 0,
+    "adam_beta1": 0.9,
+    "adam_beta2": 0.999,
+    "adam_eps": 1e-09,
+    "label_smoothing": 0.0,
+    "learning_rate": 0.15,
+    "learning_rate_decay": 0.5,
+    "start_decay_steps": 3000,
+    "decay_steps": 500,
+    "decay_method": "",
+    "warmup_steps": 4000
+  },
+  "model": {
+    "vocab_size": null,
+    "word_embed_size": 128,
+    "rnn_hidden_size": 512,
+    "n_layers": 1,
+    "attn_score_method": "dot",
+    "dropout": 0.1,
+    "use_word_attn": true
+  }
+}

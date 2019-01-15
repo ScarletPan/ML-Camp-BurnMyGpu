@@ -32,6 +32,7 @@ if __name__ == "__main__":
     tr_df.to_csv("textsum/data/chinese_new/train.csv", index=False)
     val_df.to_csv("textsum/data/chinese_new/valid.csv", index=False)
     te_df.to_csv("textsum/data/chinese_new/test.csv", index=False)
+    te_df.iloc[:50].to_csv("textsum/data/chinese_new/tiny.csv", index=False)
 
     with open("textsum/data/chinese_new/train.src.txt", "w") as f:
         for content in tr_df.content.tolist():
@@ -52,4 +53,11 @@ if __name__ == "__main__":
             f.write(content.replace("\n", " </d> ") + "\n")
     with open("textsum/data/chinese_new/test.tgt.txt", "w") as f:
         for headline in te_df.headline.tolist():
+            f.write(headline.replace("\n", " </d> ") + "\n")
+
+    with open("textsum/data/chinese_new/tiny.src.txt", "w") as f:
+        for content in te_df.iloc[:20].content.tolist():
+            f.write(content.replace("\n", " </d> ") + "\n")
+    with open("textsum/data/chinese_new/tiny.tgt.txt", "w") as f:
+        for headline in te_df.iloc[:20].headline.tolist():
             f.write(headline.replace("\n", " </d> ") + "\n")
