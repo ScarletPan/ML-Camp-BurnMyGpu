@@ -1,6 +1,38 @@
 # ML-Camp-BurnMyGpu
 Google ML冬令营-燃烧我的GPU-项目
 
+## 项目进度
+
+* Tag Classification
+- [x] (Pipeline) Training code
+- [x] (Pipeline) Test code
+- [ ] (Pipeline) Inference API
+- [x] (Model) PoolLSTM
+- [ ] (Model) +Bert
+
+* Keywords Extraction
+- [x] (Pipeline) Test code
+- [ ] (Pipeline) Inference API
+
+* Abstractive Summarization
+- [x] (Pipeline) Training code
+- [x] (Pipeline) Test code
+- [ ] (Pipeline) Inference API
+- [x] (Model) Seq2seq+Attn
+- [x] (Model) CopyNet
+- [ ] (Model) +Coverage
+- [ ] (Performance) Real-time inference
+
+* Text Style Transfering
+- [ ] (Pipeline) Training code
+- [ ] (Pipeline) Test code
+- [ ] (Pipeline) Inference API
+
+* Demo
+- [ ] Basic Layout
+- [ ] Text Highlight
+
+
 ## 路径说明
 ```
 data/
