@@ -1,3 +1,4 @@
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -134,9 +135,10 @@ class CopyEncoderDecoder(BaseDeepModel):
                 break
             beamseqs.update_current_seqs()
         final_seqs = beamseqs.return_final_seqs()
-        attns = torch.cat([t for t in final_seqs[-2]], dim=1).data.cpu().numpy().tolist()
-        pgns = torch.cat([t.squeeze(2) for t in final_seqs[-1]], dim=1).data.cpu().numpy().tolist()
-        return final_seqs[0].unsqueeze(0).squeeze(2), attns, pgns
+        preds = final_seqs[0].unsqueeze(0).squeeze(2).data.cpu().numpy()[:, 1:].tolist()
+        attns = np.concatenate(final_seqs[-2], axis=1).tolist()
+        pgns = np.concatenate([t.squeeze(2) for t in final_seqs[-1]], axis=1).tolist()
+        return preds, attns, pgns
 
     @staticmethod
     def _fix_hidden(hidden):
@@ -202,5 +204,4 @@ class CopyEncoderDecoder(BaseDeepModel):
                               batch.ext_enc_inps[0],
                               batch.max_ext_vocab_size,
                               beam_size, eos_val)
-        preds = preds.data.cpu().numpy()
         return preds, attns, pgns

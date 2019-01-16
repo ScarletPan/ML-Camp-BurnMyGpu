@@ -142,7 +142,6 @@ def text_summarize(text_list, model_file):
     batch.cuda()
     preds_idx, attns, pgns = model.predict_batch(batch, max_len=20, beam_size=5,
                                                  eos_val=vocabs["word"].to_idx(EOS_WORD))
-
     res_preds = []
     res_attns = []
     res_pgns = []
