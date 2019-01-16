@@ -106,7 +106,7 @@ class NewsDataset(torch.utils.data.Dataset):
             content_words = content.split()[:self.opt.max_content_length]
             content_idx = [vocabs["word"].to_idx(t) for t in content_words]
             contents.append(content_idx)
-            tokenized_text = self.bert_tokenizer.tokenize("".join(content_words))
+            tokenized_text = self.bert_tokenizer.tokenize("".join(content_words))[:self.opt.max_content_length]
             indexed_tokens = self.bert_tokenizer.convert_tokens_to_ids(tokenized_text)
             bert_contents.append([self.bert_tokenizer.vocab["[CLS]"]]
                                  + indexed_tokens
