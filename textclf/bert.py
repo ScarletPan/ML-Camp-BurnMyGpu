@@ -36,6 +36,18 @@ tag2idx = {
 }
 
 
+def report_score(gt, predict):
+    acc = np.mean(metrics.accuracy_score(gt, predict))
+    f1 = np.mean(metrics.f1_score(gt, predict, average="macro"))
+    prec = np.mean(metrics.precision_score(gt, predict, average="macro"))
+    recall = np.mean(metrics.recall_score(gt, predict, average="macro"))
+    print("Accuracy: ", acc)
+    print("F1: ", f1)
+    print("Precision: ", prec)
+    print("Recall: ", recall)
+    pass
+
+
 class InputExample(object):
     """A single training/test example for simple sequence classification."""
 
@@ -342,8 +354,9 @@ def val(model, processor, args, label_list, tokenizer, device):
         label_ids = label_ids.to('cpu').numpy()
 
     print(len(gt))
-    f1 = np.mean(metrics.f1_score(predict, gt, average=None))
-    print(f1)
+    f1 = np.mean(metrics.f1_score(gt, predict, average="macro"))
+    report_score(gt, predict)
+    print()
 
     return f1
 
@@ -394,7 +407,8 @@ def test(model, processor, args, label_list, tokenizer, device):
 
     f1 = np.mean(metrics.f1_score(predict, gt, average=None))
     print('F1 score in text set is {}'.format(f1))
-
+    report_score(gt, predict)
+    print()
     return f1
 
 
@@ -425,14 +439,14 @@ def main():
                         # required = True,
                         help="The output directory where the model checkpoints will be written")
     parser.add_argument("--model_save_pth",
-                        default='cache/bert/models/bert_classification.pth',
+                        default='cache/bert/bert_classification.pth',
                         type=str,
                         # required = True,
                         help="The output directory where the model checkpoints will be written")
 
     # other parameters
     parser.add_argument("--max_seq_length",
-                        default=100,
+                        default=300,
                         type=int,
                         help="字符串最大长度")
     parser.add_argument("--do_train",
