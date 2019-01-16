@@ -405,7 +405,7 @@ def main():
     # required parameters
     # 调用add_argument()向ArgumentParser对象添加命令行参数信息，这些信息告诉ArgumentParser对象如何处理命令行参数
     parser.add_argument("--data_dir",
-                        default='/home/hjpan/projects/ML-Camp-BurnMyGpu/textclf/data/chinese_new/',
+                        default='data/chinese_new/',
                         type=str,
                         # required = True,
                         help="The input data dir. Should contain the .tsv files (or other data files) for the task.")
@@ -432,7 +432,7 @@ def main():
 
     # other parameters
     parser.add_argument("--max_seq_length",
-                        default=300,
+                        default=100,
                         type=int,
                         help="字符串最大长度")
     parser.add_argument("--do_train",
@@ -554,7 +554,8 @@ def main():
     # Prepare model
     model = BertForSequenceClassification.from_pretrained(args.bert_model,
                                                           cache_dir=PYTORCH_PRETRAINED_BERT_CACHE / 'distributed_{}'.format(
-                                                              args.local_rank))
+                                                              args.local_rank),
+                                                          num_labels=3)
 
     if args.fp16:
         model.half()
