@@ -6,7 +6,7 @@ Google ML冬令营-燃烧我的GPU-项目
 * Tag Classification
 - [x] (Pipeline) Training code
 - [x] (Pipeline) Test code
-- [ ] (Pipeline) Inference API
+- [x] (Pipeline) Inference API
 - [x] (Model) PoolLSTM
 - [ ] (Model) +Bert
 
@@ -17,7 +17,7 @@ Google ML冬令营-燃烧我的GPU-项目
 * Abstractive Summarization
 - [x] (Pipeline) Training code
 - [x] (Pipeline) Test code
-- [ ] (Pipeline) Inference API
+- [x] (Pipeline) Inference API
 - [x] (Model) Seq2seq+Attn
 - [x] (Model) CopyNet
 - [ ] (Model) +Coverage
