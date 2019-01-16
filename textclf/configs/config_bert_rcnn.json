@@ -15,7 +15,7 @@
     "valid_every": 200,
     "total_steps": 1000,
     "use_cuda": true,
-    "gpu": 2,
+    "gpu": 0,
     "max_content_length": 300,
     "max_headline_length": 30,
     "n_workers": 0,
