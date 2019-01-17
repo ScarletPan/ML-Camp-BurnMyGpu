@@ -1,8 +1,7 @@
 # Title Trigger - All titles you want
 Google ML Camp-燃烧我的GPU-项目
 
-<img src="images/demo.png"> </img>
-
+![avatar](images/demo.png)
 ## Progress
 
 * Tag Classification
