@@ -1,5 +1,6 @@
 from clickbait.textsum.textsum.toolbox.utils import padding_list
 from clickbait.textsum.textsum.toolbox.vocab import Vocabulary, BOS_WORD, EOS_WORD, UNK_WORD
+from clickbait.extractor.extsum import extractive_summarize, lead_summarize
 import torch
 
 
@@ -126,6 +127,18 @@ def load_model(model_path):
     return model_file
 
 
+def get_words_from_idx(pred_idx, vocab, oov_vocab):
+    pred = []
+    for t in pred_idx:
+        if t < vocab.size:
+            pred.append(vocab.to_word(t))
+        elif t < vocab.size + oov_vocab.size:
+            pred.append(oov_vocab.to_word(t - vocab.size))
+        else:
+            pred.append(UNK_WORD)
+    return pred
+
+
 def text_summarize(text_list, model_file):
     """
 
@@ -140,21 +153,16 @@ def text_summarize(text_list, model_file):
 
     batch = make_sum_batch(text_list, vocabs["word"], train_opt.meta)
     batch.cuda()
-    preds_idx, attns, pgns = model.predict_batch(batch, max_len=20, beam_size=5,
-                                                 eos_val=vocabs["word"].to_idx(EOS_WORD))
+    preds_idx, attns, pgns, all_seqs = model.predict_batch(batch, max_len=20, beam_size=5,
+                                                 eos_val=vocabs["word"].to_idx(EOS_WORD),
+                                                 K=5)
     res_preds = []
     res_attns = []
     res_pgns = []
+    res_all_preds = []
     for k, pred_idx in enumerate(preds_idx):
         oov_vocab = batch.oov_vocabs[k]
-        pred = []
-        for t in pred_idx:
-            if t < vocabs["word"].size:
-                pred.append(vocabs["word"].to_word(t))
-            elif t < vocabs["word"].size + oov_vocab.size:
-                pred.append(oov_vocab.to_word(t - vocabs["word"].size))
-            else:
-                pred.append(UNK_WORD)
+        pred = get_words_from_idx(pred_idx, vocabs["word"], oov_vocab)
         res_pred = []
         res_attn = []
         res_pgn = []
@@ -168,12 +176,20 @@ def text_summarize(text_list, model_file):
         res_preds.append(res_pred)
         res_attns.append(res_attn)
         res_pgns.append(res_pgn)
-
+        all_preds = [(get_words_from_idx(t[0][0], vocabs["word"], oov_vocab), t[1])
+                     for t in all_seqs]
+        for tmp, _ in all_preds:
+            if BOS_WORD in tmp:
+                tmp.remove(BOS_WORD)
+            if EOS_WORD in tmp:
+                tmp.remove(EOS_WORD)
+        res_all_preds.append(all_preds)
     return {
         "preds": res_preds,
         "attns": res_attns,
         "pgns": res_pgns,
-        "max_seq_len": train_opt.meta.max_content_length
+        "max_seq_len": train_opt.meta.max_content_length,
+        "all_preds": res_all_preds
     }
 
 
@@ -188,3 +204,13 @@ def text_tag_classification(text_list, model_file):
     preds = model.predict_batch(batch).data.cpu().tolist()
     preds = [idx2tag[i] for i in preds]
     return preds
+
+
+def ext_summarize(text_list):
+    res = []
+    for text in text_list:
+        sum_ = extractive_summarize(text)
+        if not sum_:
+            sum_ = lead_summarize(text)
+        res.append(sum_)
+    return res

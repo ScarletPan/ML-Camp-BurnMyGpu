@@ -104,7 +104,7 @@ class CopyEncoderDecoder(BaseDeepModel):
 
     def generate(self, encoder_inputs, encoder_lens,
                  decoder_start_input, max_len,
-                 ext_encoder_inputs, ext_vocab_size, beam_size=1, eos_val=None):
+                 ext_encoder_inputs, ext_vocab_size, beam_size=1, eos_val=None, K=1):
         encoder_outputs, encoder_last_hidden = self.encode(encoder_inputs, encoder_lens)
         encoder_last_hidden = (self._fix_hidden(encoder_last_hidden[0]),
                                self._fix_hidden(encoder_last_hidden[1]))
@@ -127,18 +127,23 @@ class CopyEncoderDecoder(BaseDeepModel):
                     ext_encoder_inputs, ext_vocab_size)
                 _output = out.squeeze(0).squeeze(0)
                 scores, tokens = _output.topk(beam_size * 2)
-                for k in range(beam_size * 2):
+                for k in range(beam_size * 1):
                     score, token = scores.data[k], tokens[k]
                     token = token.unsqueeze(0)
                     beamseqs.add_token_to_seq(j, token, score, last_hidden, attn_dists, pgens)
             if done:
                 break
             beamseqs.update_current_seqs()
-        final_seqs = beamseqs.return_final_seqs()
-        preds = final_seqs[0].unsqueeze(0).squeeze(2).data.cpu().numpy()[:, 1:].tolist()
-        attns = np.concatenate(final_seqs[-2], axis=1).tolist()
-        pgns = np.concatenate([t.squeeze(2) for t in final_seqs[-1]], axis=1).tolist()
-        return preds, attns, pgns
+        final_seqs = beamseqs.return_final_seqs(K)
+
+        best_seqs = final_seqs[0]
+        best_preds = best_seqs[0].unsqueeze(0).squeeze(2).data.cpu().numpy()[:, 1:].tolist()
+        best_attns = np.concatenate(best_seqs[-2], axis=1).tolist()
+        best_pgns = np.concatenate([t.squeeze(2) for t in best_seqs[-1]], axis=1).tolist()
+        all_seqs = [(t[0].unsqueeze(0).squeeze(2).data.cpu().numpy()[:, 1:].tolist(),
+                     t[1].data.cpu().numpy().tolist())
+                    for t in final_seqs]
+        return best_preds, best_attns, best_pgns, all_seqs
 
     @staticmethod
     def _fix_hidden(hidden):
@@ -196,12 +201,12 @@ class CopyEncoderDecoder(BaseDeepModel):
         }
         return result_dict
 
-    def predict_batch(self, batch, max_len=20, beam_size=4, eos_val=0):
+    def predict_batch(self, batch, max_len=20, beam_size=4, eos_val=0, K=1):
         enc_inps, enc_lens = batch.enc_inps
         dec_start_inps = batch.dec_start_inps
-        preds, attns, pgns = self.generate(enc_inps, enc_lens,
+        preds, attns, pgns, all_seqs = self.generate(enc_inps, enc_lens,
                               dec_start_inps, max_len,
                               batch.ext_enc_inps[0],
                               batch.max_ext_vocab_size,
-                              beam_size, eos_val)
-        return preds, attns, pgns
+                              beam_size, eos_val, K)
+        return preds, attns, pgns, all_seqs

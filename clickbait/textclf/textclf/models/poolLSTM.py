@@ -1,8 +1,9 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torch.autograd import Variable
 from textclf.models.base import BaseDeepModel
-from textclf.toolbox.layers import SortedLSTM
+from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 
 
 class PoolLSTM(BaseDeepModel):
@@ -11,29 +12,31 @@ class PoolLSTM(BaseDeepModel):
         rnn_hidden_size = opt.model.rnn_hidden_size
 
         self.encoder_embedding = nn.Embedding(opt.model.word_vocab_size, opt.model.word_embed_size)
-        self.encoder = SortedLSTM(input_size=opt.model.word_embed_size,
-                                 hidden_size=opt.model.rnn_hidden_size // 2,
-                                 num_layers=opt.model.n_layers,
-                                 batch_first=True,
-                                 bidirectional=True)
-        self.bert = None
+        self.encoder = nn.LSTM(input_size=opt.model.word_embed_size,
+                               hidden_size=rnn_hidden_size,
+                               num_layers=opt.model.n_layers,
+                               bias=True,
+                               batch_first=True,
+                               bidirectional=True)
         self.fc = nn.Linear(rnn_hidden_size, 3)
 
-        self.loss_fn = loss_fn
-        self.rnn_hidden_size = opt.model.rnn_hidden_size
+        self.n_class = opt.meta.n_class
+        self.n_directions = 2
         self.n_layers = opt.model.n_layers
+        self.hidden_size = opt.model.rnn_hidden_size
         self.use_cuda = opt.meta.use_cuda
-        self.n_class = 3
+        self.loss_fn = loss_fn
+        self.rnn_hidden_size = rnn_hidden_size
         self_linear_hidden_size = opt.model.self_linear_hidden_size
         linear_hidden_size = opt.model.linear_hidden_size
         self.self_fc = nn.Sequential(
-            nn.Linear(rnn_hidden_size, self_linear_hidden_size),
+            nn.Linear(rnn_hidden_size * 2, self_linear_hidden_size),
             nn.BatchNorm1d(self_linear_hidden_size),
             nn.Tanh(),
             nn.Linear(self_linear_hidden_size, 1)
         )
         self.fc = nn.Sequential(
-            nn.Linear(rnn_hidden_size * 4, linear_hidden_size),
+            nn.Linear(rnn_hidden_size * 8, linear_hidden_size),
             nn.BatchNorm1d(linear_hidden_size),
             nn.ReLU(inplace=True),
             nn.Linear(linear_hidden_size, self.n_class)
@@ -48,19 +51,36 @@ class PoolLSTM(BaseDeepModel):
 
     def self_attn_encode(self, encoder_output):
         bsize, seq_len, _ = encoder_output.size()
-        flatten_encoder_output = encoder_output.view(-1, self.rnn_hidden_size)
+        flatten_encoder_output = encoder_output.view(-1, self.rnn_hidden_size * 2)
         out = self.self_fc(flatten_encoder_output)
         out = out.view(bsize, seq_len, -1)
         self_attn_weights = F.softmax(out, dim=1).transpose(1, 2)
         encoded = self_attn_weights.bmm(encoder_output)
         return encoded
 
+    def init_hidden(self, batch_size):
+        hidden = Variable(torch.zeros(self.n_layers * self.n_directions,
+                                      batch_size, self.hidden_size))
+        hidden.data.normal_(std=0.01)
+        cell = Variable(torch.zeros(self.n_layers * self.n_directions,
+                                    batch_size, self.hidden_size))
+        cell.data.normal_(std=0.01)
+        if self.use_cuda:
+            hidden = hidden.cuda()
+            cell = cell.cuda()
+        return (hidden, cell)
+
     def forward(self, inps, inps_len,
                       bert_inps, bert_inps_len):
         bsize = inps.size(0)
-        inp_embs = self.encoder_embedding(inps)
-
-        encoder_output, (last_hidden, _) = self.encoder(inp_embs, inps_len)
+        fact_embeds = self.encoder_embedding(inps)
+        packed_embeds = pack_padded_sequence(fact_embeds,
+                                             inps_len.cpu().numpy(),
+                                             batch_first=True)
+        init_hidden = self.init_hidden(bsize)
+        packed_encoder_output, (last_hidden, _) = self.encoder(packed_embeds, init_hidden)
+        encoder_output, _ = pad_packed_sequence(packed_encoder_output)
+        encoder_output = encoder_output.transpose(0, 1).contiguous()
         last_hidden = self._fix_hidden(last_hidden)
 
         last_hidden_out = last_hidden.transpose(0, 1).contiguous().view(bsize, -1)

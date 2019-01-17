@@ -12,13 +12,14 @@
     "valid_batch_size": 16,
     "epochs": null,
     "print_every": 100,
-    "valid_every": 200,
+    "valid_every": 500,
     "total_steps": 1000,
     "use_cuda": true,
     "gpu": 2,
     "max_content_length": 300,
     "max_headline_length": 30,
-    "n_workers": 0
+    "n_workers": 0,
+    "n_class": 3
   },
   "optimizer": {
     "optim": "adam",
@@ -43,7 +44,7 @@
     "word_embed_size": 128,
     "rnn_hidden_size": 512,
     "self_linear_hidden_size": 256,
-    "linear_hidden_size": 256,
+    "linear_hidden_size": 512,
     "dropout": 0.0,
     "n_layers": 1,
     "attn_score_method": "dot",
