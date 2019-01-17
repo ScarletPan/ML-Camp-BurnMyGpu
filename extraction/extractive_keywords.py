@@ -19,16 +19,16 @@ class MyTextRank(object):
 		self.word_list = [s.word for s in segment if s.flag in siever] 
 		# print(self.word_list) 
 
-  	#根据窗口，构建每个节点的相邻节点，返回边的集合 
-	def get_graph(self):
+		
+	def get_graph(self):		#根据窗口，构建每个节点的相邻节点，返回边的集合
 		tmp_list = [] 
 		length = len(self.word_list) # 单词列表长度
 		for index, word in enumerate(self.word_list): 
 			if word not in self.edge_dict.keys(): 
 				tmp_list.append(word) 
 				tmp_set = set()
-				left = index - self.window_size + 1 #窗口左边界
-				right = index + self.window_size #窗口右边界
+				left = index - self.window_size + 1	 #窗口左边界
+				right = index + self.window_size	 #窗口右边界
 				if left < 0:
 					left = 0
 				if right >= length:
