@@ -1,5 +1,5 @@
-# ML-Camp-BurnMyGpu
-Google ML冬令营-燃烧我的GPU-项目
+# Title Trigger - All titles you want
+Google ML Camp-燃烧我的GPU-项目
 
 ## Progress
 
