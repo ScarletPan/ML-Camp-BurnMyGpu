@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="clickbait",
+    name="titletrigger",
     version="0.0.1",
     author="Bur my GPU",
     author_email="xxx@example.com",
