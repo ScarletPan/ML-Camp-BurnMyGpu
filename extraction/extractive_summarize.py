@@ -22,9 +22,9 @@ def extractive_summarize(content):
         _sents = []
         for sent in sents:
             words = list(jieba.cut(sent)) # 分词
-            sent = ' '.join(words) # 用空格把词隔开
+            sent = ' '.join(words)      # 用空格把词隔开
             _sents.append(sent)
-        content = '. '.join(_sents)  # 用.把句子隔开
+        content = '. '.join(_sents)     # 用.把句子隔开
         return content
 
     def clean(content):
