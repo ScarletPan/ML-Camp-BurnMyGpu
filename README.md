@@ -9,7 +9,8 @@ Google ML Camp-燃烧我的GPU-项目
 - [x] (Pipeline) Test code
 - [x] (Pipeline) Inference API
 - [x] (Model) PoolLSTM
-- [x] (Model) +Bert
+- [x] (Model) RCNN+
+- [x] (Model) Bert
 
 * Keywords Extraction
 - [x] (Pipeline) Test code
@@ -20,7 +21,7 @@ Google ML Camp-燃烧我的GPU-项目
 - [x] (Pipeline) Test code
 - [x] (Pipeline) Inference API
 - [x] (Model) Seq2seq+Attn
-- [x] (Model) CopyNet
+- [x] (Model) Effective Pointer generator
 
 * Text Style Transfering
 - [x] (Pipeline) Training code
