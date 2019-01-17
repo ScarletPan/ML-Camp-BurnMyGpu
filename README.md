@@ -21,14 +21,10 @@ Google ML Camp-燃烧我的GPU-项目
 - [x] (Pipeline) Inference API
 - [x] (Model) Seq2seq+Attn
 - [x] (Model) CopyNet
-- [ ] (Model) +Coverage
-- [ ] (Transfer) +Sougou
-- [ ] (Performance) Real-time inference
 
 * Text Style Transfering
 - [x] (Pipeline) Training code
 - [x] (Pipeline) Test code
-- [ ] (Pipeline) Inference API
 
 * Demo
 - [x] Basic Layout
